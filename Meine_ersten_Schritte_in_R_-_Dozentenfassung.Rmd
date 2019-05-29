@@ -1,0 +1,288 @@
+---
+title: "Meine ersten Schritte in R - DOZENTENFASSUNG"
+author: "Norman Markgraf"
+date: "23 5 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(mosaic)
+```
+
+## Vorlesung vom 23.05.2019
+
+Als erstes wollen wir immer das Paket *mosaic* laden:
+```{r}
+library(mosaic)
+```
+
+
+Wir wollen den internen Datensatz *Birth78* laden:
+```{r}
+data("Births78")
+```
+
+
+Als erstes wollen wir die Geburten im Jahr 1978 in den US genauer ansehen. Dazu erstellen wir ein Streudiagramm (in R: *gf_point()*). Dabei wollen wir die Geburtenanzahl *births* auf der Y-Achse abtragen und das Datum *date* auf der X-Achse :
+
+```{r}
+gf_point(births ~ date, data=Births78)
+```
+
+
+Wir wollen die Daten eine inspizieren mit dem Befehl *inspect()*:
+
+```{r}
+inspect(Births78)
+```
+
+
+```{r}
+gf_point(births ~ date, color = ~ wday, data=Births78)
+```
+
+Mit dem Befehl *filter* wählt man Beobachtungen aus:
+
+```{r}
+Births78 %>%
+  filter(date == "1978-07-04")
+```
+
+
+
+Eigentlich interessiert uns nur die Anzahl der Geburten und wir brauchen dazu nur die Spalte *births*:
+
+```{r}
+Births78 %>%
+  filter(date == "1978-07-04") %>%
+  select(births)
+```
+
+
+```{r}
+Births78 %>%
+  filter(date == "1978-12-08") %>%
+  select(births)
+```
+
+
+Wie viele Geburten gab es denn im Mittel?
+```{r}
+mean( births ~ 1, data=Births78)
+```
+
+es geht aber auch so:
+```{r}
+mean( ~ births, data=Births78)
+```
+
+
+Wie viel Geburten gab es je Wochentag?
+
+```{r}
+mean( births ~ wday , data=Births78)
+```
+
+```{r}
+mean( births ~ month , data=Births78)
+```
+
+
+Ein kurzer Blick in die Datenstruktur geht mit dem Befehl *str()*
+
+```{r}
+str(Births78)
+```
+
+
+## Die tipping-Daten laden
+
+Wir wollen die tipping-Daten auf unseren Rechner und danach in den Speicher von R laden:
+
+1. Herunterladen der tippping-Daten:
+
+```{r}
+download.file("https://goo.gl/whKjnl", destfile = "tips.csv")
+```
+
+2. Einlesen in R:
+```{r}
+tips <- read.csv2("tips.csv")
+```
+
+
+```{r}
+str(tips)
+```
+
+
+
+## Vorlesung vom 28.05.2019
+
+Als erstes wollen wir immer das Paket *mosaic* laden:
+
+```{r}
+library(mosaic)
+```
+
+Und im Anschluss die Tipping-Daten:
+
+```{r}
+tips <- read.csv2("tips.csv")
+```
+
+
+Anteilswert der Rechnungszahler*innen:
+
+*Als Grapfik:*
+```{r}
+gf_bar( ~ sex, data=tips)
+```
+
+
+*Als Kennzahl:*
+```{r}
+prop( ~sex, data=tips)
+prop( ~sex, success="Female", data=tips)
+prop( ~sex, success="Male", data=tips)
+```
+
+*Als Tabellierung der absoluten Häufigkeiten:*
+```{r}
+tally( ~sex, data=tips)
+```
+
+*Als Tabellierung der relativen Häufigkeiten:*
+```{r}
+tally( ~sex, format="proportion", data=tips)
+```
+
+*Gruppiertes Säulendiagramm:*
+
+```{r}
+gf_bar( ~ sex | time, data=tips)
+```
+
+
+*Kreuztabellierung Geschlecht nach Tageszeit:*
+
+```{r}
+tally( ~sex | time, data=tips)
+```
+
+```{r}
+tally( ~sex | time, format="proportion", data=tips)
+```
+
+
+### Übung 18
+
+```{r}
+tally( ~smoker | day, format = "proportion", data=tips)
+```
+```{r}
+tally( ~day | smoker, format = "proportion", data=tips)
+```
+
+
+*Ein Histogramm:*
+
+```{r}
+gf_histogram( ~ total_bill, binwidth=10, center=5, data=tips)
+```
+
+
+## Vorlesung vom 29.05.2019
+
+Laden des `mosaic`Pakets:
+
+```{r}
+library(mosaic)
+```
+
+Einlesen der tipping-Daten in R:
+```{r}
+tips <- read.csv2("tips.csv")
+```
+
+
+### Der Boxplot:
+
+```{r}
+gf_boxplot( ~ tip, data=tips)
+```
+
+
+
+### Boxplot Rechnungshöhe in Abhängigkeit vom Geschlecht:
+
+```{r}
+gf_boxplot(total_bill ~ sex, data=tips)
+```
+
+
+```{r}
+favstats( total_bill ~ sex, data=tips)
+```
+
+
+```{r}
+gf_point(total_bill ~ sex, stat="summary", size=5, data=tips)
+```
+
+
+
+
+
+
+```{r}
+gf_point(tip ~ jitter(size), data=tips)
+```
+
+
+### Zusammenhang zwischen Trinkgeld und Rechnungshöhe
+
+```{r}
+gf_point(tip ~ total_bill, data=tips)
+```
+
+```{r}
+cor(tip ~ total_bill, data=tips)
+```
+
+### Übung 40
+
+```{r}
+gf_histogram( ~total_bill| smoker, binwidth=10, center=5, data=tips)
+```
+
+```{r}
+gf_boxplot( ~total_bill| smoker, data=tips)
+```
+
+```{r}
+gf_point(total_bill ~ smoker, stat="summary", size=5, data=tips)
+```
+
+```{r}
+gf_point(tip ~ total_bill | smoker, data=tips)
+```
+
+```{r}
+gf_point(tip ~ total_bill, color= ~ smoker, data=tips)
+```
+
+
+### Inferenzstatistik
+
+```{r}
+set.seed(2019)
+muenzverteilung <- do(1000) * rflip(n=10)
+```
+
+```{r}
+gf_bar( ~ heads, data=muenzverteilung)
+```
+
